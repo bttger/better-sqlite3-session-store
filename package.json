@@ -1,5 +1,5 @@
 {
-  "name": "better-sqlite3-session-store",
+  "name": "@bttger/better-sqlite3-session-store",
   "version": "1.0.0",
   "description": "A session store for express-session.",
   "main": "src/index.js",
