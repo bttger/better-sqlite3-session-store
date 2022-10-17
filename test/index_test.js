@@ -279,18 +279,30 @@ test("if an active session is retrieved when calling get", (t) => {
   });
 });
 
-test("if a session is destroyed", (t) => {
+test("if a session is destroyed and others stay valid", (t) => {
   const db = new sqlite(dbName, dbOptions);
   const s = new SqliteStore({
     client: db,
   });
 
   const sid = "123";
-  const sess = { cookie: { maxAge: 100 }, name: "sample name" };
+  const sess = { cookie: { maxAge: 100 }, name: "sample" };
   s.set(sid, sess, (err, res) => {
     t.assert(!err);
     t.assert(res);
   });
+
+  const sidKeep = "456";
+  const sessKeep = { cookie: { maxAge: 100 }, name: "sample" };
+  s.set(sidKeep, sessKeep, (err, res) => {
+    t.assert(!err);
+    t.assert(res);
+  });
+
+  const { numOfSessionsBefore } = db
+    .prepare("SELECT COUNT(*) as numOfSessionsBefore FROM sessions")
+    .get();
+  t.assert(numOfSessionsBefore === 2);
 
   s.destroy(sid, (err, res) => {
     t.assert(!err);
@@ -300,7 +312,7 @@ test("if a session is destroyed", (t) => {
   const { numOfSessions } = db
     .prepare("SELECT COUNT(*) as numOfSessions FROM sessions")
     .get();
-  t.assert(numOfSessions === 0);
+  t.assert(numOfSessions === 1);
 });
 
 test("if non-existent session can be destroyed without throwing an error too", (t) => {
